@@ -1,0 +1,94 @@
+---
+title: "main"
+author: "Pierre Catoire"
+date: "02/11/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+## Enoncé
+
+L’objectif du projet est d’analyser ces données  à l’aide de la régression de Poisson pour identifier les facteurs prédictifs afin de prévoir le nombre de vélos de location nécessaires à chaque heure.
+
+## Description des variables
+
+Date du jour Date Year-Month-Day 
+Nombre de vélos loués par heure (quanti discrète)
+Heure (quanti discrète)
+Température(quanti continue)
+Taux d’humidité quanti continue
+Vitesse du vent quanti continue
+Visibilité quanti continue
+Température du point de rosée quanti continue
+Radiation solaire quanti continue
+Rain quanti continue
+Chute de neige Snow quanti continue
+Saison Seasons quali catégorielle 
+Vacances Holiday quali binaire
+Jour fonctionnel Fday quali binaire
+
+### Description du modèle
+
+$\ln{\mathbb{E}(Y_{i}\mid X_{i})} = \eta_{i} = X_{i}^{T}\beta$
+
+On souhaite prédire :
+
+- Yi : le nombre de vélos loués en une heure
+
+En fonction de :
+- Heure
+- Température
+- ...
+
+```{r cars}
+df = read.csv("SeoulBikeData.csv")
+summary(df)
+names(df) = c("DATE",
+              "BIKECOUNT",
+              "HOUR",
+              "TEMP",
+              "HUMIDITY",
+              "WINDSPEED",
+              "VISIBILITY",
+              "DEWPOINT",
+              "SOLARRAD",
+              "RAINFALL",
+              "SNOWFALL",
+              "SEASONS",
+              "HOLIDAY",
+              "FUNCTIONINGDAY")
+
+model = glm(formula = BIKECOUNT ~
+                          HOUR
+                        + TEMP
+                        + HUMIDITY
+                        + WINDSPEED
+                        + VISIBILITY
+                        + DEWPOINT
+                        + SOLARRAD
+                        + RAINFALL
+                        + SNOWFALL
+                        + factor(SEASONS)
+                        + factor(HOLIDAY)
+                        + factor(FUNCTIONINGDAY),
+    family = "poisson",
+    data = df)
+
+summary(model)
+sum(((df$BIKECOUNT-model$fitted.values)^2)/model$fitted.values)
+sum(residuals(model,type="pearson")^2)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
